@@ -5,13 +5,14 @@ from sklearn.preprocessing import OrdinalEncoder, MinMaxScaler
 from sklearn.impute import KNNImputer, IterativeImputer
 from collections import Counter
 
-
 class DataTest:
     
     def __init__(self):
+        
         pass
         
     def importdata(self):
+        
         self.data_as_csv = pd.read_csv(self.file)
         
         return self
@@ -45,6 +46,7 @@ class DataTest:
         self.other_cols = []
         
         for col in self.data_as_csv.columns:
+            
             if self.data_as_csv[col].dtype == "object":
                 self.cat_cols.append(col)
             elif self.data_as_csv[col].dtype =="float64" or self.data_as_csv[col].dtype == "int64":
@@ -58,6 +60,7 @@ class DataTest:
         return self
     
     def dropoutliers(self):
+        
         outlier_idx = []
 
         for each in self.num_cols:
@@ -90,15 +93,24 @@ class DataTest:
         return self
     
     def fillnans(self):
+        self.data_imputed = self.data_as_csv.copy(deep = True)
 
-        self.fillcats()
-        self.fillnums()
-        self.filltimes()
-        self.fillother()
+        for each in self.nancols:
+            
+            if each in self.cat_cols:
+                self.fillcats()
+            elif each in self.num_cols:
+                self.fillnums()
+            elif each in self.datetime_cols:
+                self.filltimes()
+            else:
+                
+                self.fillother()
         
         return self
     
     def scaling(self):
+        
         scaler = MinMaxScaler()
 
         self.data_imputed[self.num_cols] = scaler.fit_transform(self.data_imputed[self.num_cols])
@@ -119,8 +131,6 @@ class DataTest:
             
             encoded_vals = enc_dict[col_name].fit_transform(reshaped_vals)
             self.data_as_csv.loc[col.notnull(), col_name] = np.squeeze(encoded_vals)
-        
-        self.data_imputed = self.data_as_csv.copy(deep = True)
         
         self.data_imputed.loc[:, self.cat_cols] = np.round(KNN_imputer.fit_transform(self.data_imputed.loc[:, self.cat_cols]))
         
@@ -155,7 +165,7 @@ class DataTest:
         print("Saved.")
         
         return self
-        
+    
     def start(self, file):
         
         self.file = file
