@@ -16,7 +16,7 @@ class DataTest:
         self.data_as_csv = pd.read_csv(self.file)
         
         return self
-        
+    
         # Açıklama eklenecek.
     def dropduplicates(self):
         
@@ -49,7 +49,7 @@ class DataTest:
             
             if self.data_as_csv[col].dtype == "object":
                 self.cat_cols.append(col)
-            elif self.data_as_csv[col].dtype =="float64" or self.data_as_csv[col].dtype == "int64":
+            elif self.data_as_csv[col].dtype == "float64" or self.data_as_csv[col].dtype == "int64":
                 self.num_cols.append(col)
             elif self.data_as_csv[col].dtype == "datetime64":
                 self.datetime_cols.append(col)
@@ -78,7 +78,7 @@ class DataTest:
         outlier_idx = Counter(outlier_idx)
         multiple_outliers = list(i for i, v in outlier_idx.items() if v >= 1)
 
-        self.data_as_csv = self.data_as_csv.drop(multiple_outliers,axis = 0).reset_index(drop = True)
+        self.data_as_csv = self.data_as_csv.drop(multiple_outliers, axis = 0).reset_index(drop = True)
         
         return self
     
@@ -93,6 +93,7 @@ class DataTest:
         return self
     
     def fillnans(self):
+        
         self.data_imputed = self.data_as_csv.copy(deep = True)
 
         for each in self.nancols:
@@ -127,15 +128,15 @@ class DataTest:
             
             col = self.data_as_csv[col_name]
             col_not_null = col[col.notnull()]
-            reshaped_vals = col_not_null.values.reshape(-1,1)
+            reshaped_vals = col_not_null.values.reshape(-1, 1)
             
             encoded_vals = enc_dict[col_name].fit_transform(reshaped_vals)
             self.data_as_csv.loc[col.notnull(), col_name] = np.squeeze(encoded_vals)
-        
-        self.data_imputed.loc[:, self.cat_cols] = np.round(KNN_imputer.fit_transform(self.data_imputed.loc[:, self.cat_cols]))
+       
+        self.data_imputed.loc[:, self.cat_cols] = np.round(KNN_imputer.fit_transform(self.data_as_csv.loc[:, self.cat_cols]))
         
         for col in self.cat_cols:
-            reshaped = self.data_imputed[col].values.reshape(-1,1)
+            reshaped = self.data_imputed[col].values.reshape(-1, 1)
             self.data_imputed[col] = enc_dict[col].inverse_transform(reshaped)
         
         return self
