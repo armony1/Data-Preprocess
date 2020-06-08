@@ -15,7 +15,7 @@ class DataTest:
         
         self.data_as_csv = pd.read_csv(self.file)
         
-        return self, self.data_as_csv
+        return self
     
         # Açıklama eklenecek.
     def dropduplicates(self):
