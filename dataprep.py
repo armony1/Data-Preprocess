@@ -8,9 +8,9 @@ from collections import Counter
 class DataTest:
     
     def __init__(self):
-
-        pass
         
+        self.data_as_csv =self.nancols=self.cat_cols=self.num_cols=self.datetime_cols=self.other_cols=self.nancheck=self.data_imputed=self.file= None
+
     def importdata(self):
         
         self.data_as_csv = pd.read_csv(self.file)
@@ -92,22 +92,38 @@ class DataTest:
 
         return self
     
-    def fillnans(self):
+    def fillnans(self, method = None, value = None):
         
         self.data_imputed = self.data_as_csv.copy(deep = True)
-
-        for each in self.nancols:
-            
-            if each in self.cat_cols:
-                self.fillcats()
-            elif each in self.num_cols:
-                self.fillnums()
-            elif each in self.datetime_cols:
-                self.filltimes()
-            else:
-                
-                self.fillother()
         
+        if method == "impute":
+
+            for each in self.nancols:
+            
+                if each in self.cat_cols:
+                    self.fillcats()
+                elif each in self.num_cols:
+                    self.fillnums()
+                elif each in self.datetime_cols:
+                    self.filltimes()
+                else:    
+                    self.fillother()
+        
+        elif method == "fill" and value == 0:
+            self.data_imputed.fillna(0, inplace = True)
+            
+        elif method == "fill" and value == 1:
+            self.data_imputed.fillna(1, inplace = True)
+        
+        elif method == None:
+            raise ValueError("Method cannot be empty.")
+            
+        elif method == "fill" and value == None:
+            raise ValueError("You must specify the value to fill.")
+            
+        elif method == "fill" and value != 0 or value != 1:
+            raise ValueError("value must be 0 or 1. for now..")
+            
         return self
     
     def scaling(self):
