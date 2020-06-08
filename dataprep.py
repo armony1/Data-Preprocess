@@ -8,14 +8,14 @@ from collections import Counter
 class DataTest:
     
     def __init__(self):
-        
+
         pass
         
     def importdata(self):
         
         self.data_as_csv = pd.read_csv(self.file)
         
-        return self
+        return self, self.data_as_csv
     
         # Açıklama eklenecek.
     def dropduplicates(self):
@@ -78,7 +78,7 @@ class DataTest:
         outlier_idx = Counter(outlier_idx)
         multiple_outliers = list(i for i, v in outlier_idx.items() if v >= 1)
 
-        self.data_as_csv = self.data_as_csv.drop(multiple_outliers, axis = 0).reset_index(drop = True)
+        self.data_as_csv = self.data_as_csv.drop(multiple_outliers,axis = 0).reset_index(drop = True)
         
         return self
     
@@ -132,7 +132,8 @@ class DataTest:
             
             encoded_vals = enc_dict[col_name].fit_transform(reshaped_vals)
             self.data_as_csv.loc[col.notnull(), col_name] = np.squeeze(encoded_vals)
-       
+        
+                
         self.data_imputed.loc[:, self.cat_cols] = np.round(KNN_imputer.fit_transform(self.data_as_csv.loc[:, self.cat_cols]))
         
         for col in self.cat_cols:
@@ -183,4 +184,4 @@ class DataTest:
         
         print("done")
         
-        return self
+        return self.data_imputed
