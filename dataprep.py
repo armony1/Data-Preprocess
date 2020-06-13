@@ -6,32 +6,38 @@ from sklearn.impute import KNNImputer, IterativeImputer
 from collections import Counter
 
 class DataTest:
+
     
     def __init__(self):
-        
-        self.data_as_csv =self.nancols=self.cat_cols=self.num_cols=self.datetime_cols=self.other_cols=self.nancheck=self.data_imputed=self.file= None
 
-    def importdata(self):
+        self.data_as_csv = self.nancheck=self.data_imputed=self.file= None
+        self.nancols = []
+        self.cat_cols = []
+        self.num_cols = []
+        self.datetime_cols = []
+        self.other_cols = []
+
+    def importdata(self, file):
+
+        self.file = file
         
         self.data_as_csv = pd.read_csv(self.file)
         
-        return self
+        return self.data_as_csv
     
-        # Açıklama eklenecek.
     def dropduplicates(self):
         
-        self.data_as_csv.drop_duplicates()
+        self.data_as_csv.drop_duplicates(inplace=True)
         
-        return self
+        return self.data_as_csv
     
     def dropconstants(self):
         
         feats_counts = self.data_as_csv.nunique(dropna = False)
-        feats_counts.sort_values()
         constant_features = feats_counts.loc[feats_counts == 1].index.tolist()
         self.data_as_csv.drop(constant_features, axis = 1, inplace = True)
         
-        return self
+        return self.data_as_csv
     
         #check for unique values and dtypes
         
@@ -39,11 +45,6 @@ class DataTest:
         #print(unique_counts)
         
     def sepcols(self):
-        
-        self.cat_cols = []
-        self.num_cols = []
-        self.datetime_cols = []
-        self.other_cols = []
         
         for col in self.data_as_csv.columns:
             
@@ -57,7 +58,7 @@ class DataTest:
             else:
                 self.other_cols.append(col)
                 
-        return self
+        return self.cat_cols, self.num_cols, self.datetime_cols, self.other_cols
     
     def dropoutliers(self):
         
@@ -80,12 +81,11 @@ class DataTest:
 
         self.data_as_csv = self.data_as_csv.drop(multiple_outliers,axis = 0).reset_index(drop = True)
         
-        return self
+        return self.data_as_csv
     
     def checknans(self):
         
         self.nancheck = self.data_as_csv.isnull().sum()
-        self.nancols = []
         for each in self.nancheck.index:
             if self.nancheck.loc[each] >= 1:
                 self.nancols.append(each)
@@ -124,7 +124,7 @@ class DataTest:
         elif method == "fill" and value != 0 or value != 1:
             raise ValueError("value must be 0 or 1. for now..")
             
-        return self
+        return self.data_imputed
     
     def scaling(self):
         
@@ -132,7 +132,7 @@ class DataTest:
 
         self.data_imputed[self.num_cols] = scaler.fit_transform(self.data_imputed[self.num_cols])
         
-        return self
+        return self.data_imputed
     
     def fillcats(self):
         
@@ -185,19 +185,18 @@ class DataTest:
         return self
     
     def start(self, file):
-        
-        self.file = file
-        
+
         self.importdata()
         self.dropduplicates()
         self.dropconstants()
         self.sepcols()
         self.dropoutliers()
         self.checknans()
-        self.fillnans()
+        self.fillnans(method = "fill", value = 0)
         self.scaling()
         self.save()
         
         print("done")
         
         return self.data_imputed
+    
